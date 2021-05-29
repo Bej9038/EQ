@@ -166,7 +166,8 @@ bool EQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* EQAudioProcessor::createEditor()
 {
-    return new EQAudioProcessorEditor (*this);
+    /*return new EQAudioProcessorEditor (*this);*/
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -181,6 +182,42 @@ void EQAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout 
+    EQAudioProcessor::createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    juce::StringArray strArr;
+    for (int i = 0; i < 4; i++)
+    {
+        juce::String str;
+        str << (12 + i * 12);
+        str << "dB/oct";
+        strArr.add(str);
+    }
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>
+        ("Low Cut", "Low Cut", juce::NormalisableRange<float>(0.f, 30000.f, 1.f, 1.f), 0.f));
+
+    layout.add(std::make_unique<juce::AudioParameterChoice>("Low Cut Slope", "Low Cut Slope", strArr, 0));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>
+        ("High Cut", "High Cut", juce::NormalisableRange<float>(0.f, 30000.f, 1.f, 1.f), 30000.f));
+
+    layout.add(std::make_unique<juce::AudioParameterChoice>("High Cut Slope", "High Cut Slope", strArr, 0));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>
+        ("Peak", "Peak", juce::NormalisableRange<float>(0.f, 30000.f, 1.f, 1.f), 500.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>
+        ("Peak Gain", "Peak Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>
+        ("Peak Q", "Peak Q", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
+
+
+    return layout;
 }
 
 //==============================================================================
