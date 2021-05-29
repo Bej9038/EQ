@@ -61,7 +61,7 @@
       </OUTPUTS>
     </LAYOUT>
   </FILTER>
-  <FILTER uid="6" x="0.3875" y="0.3130590339892665">
+  <FILTER uid="6" x="0.392235609103079" y="0.317016317016317">
     <PLUGIN name="Sine Wave Synth" format="Internal" category="Synth" manufacturer="JUCE"
             version="1.0.0" file="Sine Wave Synth" uid="16fd76a8" isInstrument="1"
             fileTime="0" infoUpdateTime="0" numInputs="0" numOutputs="2"
@@ -74,11 +74,11 @@
       </OUTPUTS>
     </LAYOUT>
   </FILTER>
-  <FILTER uid="11" x="0.43" y="0.5313059033989267" uiLastX_Normal="394"
-          uiLastY_Normal="426" uiopen_Normal="0">
+  <FILTER uid="13" x="0.4029451137884873" y="0.5361305361305362" uiLastX_Normal="485"
+          uiLastY_Normal="317" uiopen_Normal="0">
     <PLUGIN name="EQ" format="VST3" category="Fx" manufacturer="yourcompany"
             version="1.0.0" file="C:\Users\Ben\Desktop\EQ\EQ\Builds\VisualStudio2019\x64\Release\VST3\EQ.vst3"
-            uid="e95b370c" isInstrument="0" fileTime="179b889a48b" infoUpdateTime="179b8927c4c"
+            uid="e95b370c" isInstrument="0" fileTime="179b8d1802e" infoUpdateTime="179b9525d8f"
             numInputs="2" numOutputs="2" isShell="0"/>
     <STATE>191.VMjLgXK....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9XCLt3hKt3hKt3hKt3hYRUUSTEETIckVwTjQisVTTgkdEYjKAQjYPQSPWgUdMcjKAQjct3hdA4hKt3hKt3hKtnTUv.UQAslXuk0UXoWUFE0YQcEV77RRC8Vav8lak4Fc9vyKVMEUy.Ea0cVZtMEcgQWY9..</STATE>
     <LAYOUT>
@@ -91,8 +91,8 @@
     </LAYOUT>
   </FILTER>
   <CONNECTION srcFilter="2" srcChannel="4096" dstFilter="6" dstChannel="4096"/>
-  <CONNECTION srcFilter="6" srcChannel="0" dstFilter="11" dstChannel="0"/>
-  <CONNECTION srcFilter="6" srcChannel="1" dstFilter="11" dstChannel="1"/>
-  <CONNECTION srcFilter="11" srcChannel="0" dstFilter="3" dstChannel="0"/>
-  <CONNECTION srcFilter="11" srcChannel="1" dstFilter="3" dstChannel="1"/>
+  <CONNECTION srcFilter="6" srcChannel="0" dstFilter="13" dstChannel="0"/>
+  <CONNECTION srcFilter="6" srcChannel="1" dstFilter="13" dstChannel="1"/>
+  <CONNECTION srcFilter="13" srcChannel="0" dstFilter="3" dstChannel="0"/>
+  <CONNECTION srcFilter="13" srcChannel="1" dstFilter="3" dstChannel="1"/>
 </FILTERGRAPH>
