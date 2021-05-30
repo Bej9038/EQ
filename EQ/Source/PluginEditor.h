@@ -18,9 +18,9 @@ struct CustomRotarySlider : juce::Slider
     {}
 };
 
-struct CustomDropDown : juce::ComboBox
+struct CustomComboBox : juce::ComboBox
 {
-    CustomDropDown() : juce::ComboBox()
+    CustomComboBox() : juce::ComboBox()
     {}
 };
 
@@ -38,8 +38,6 @@ public:
     void resized() override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     EQAudioProcessor& audioProcessor;
 
     CustomRotarySlider  peak1FreqSlider,
@@ -51,7 +49,22 @@ private:
         lowCutFreqSlider,
         highCutFreqSlider;
 
-    CustomDropDown lowCutSlope, highCutSlope;
+    CustomComboBox lowCutSlope, highCutSlope;
+
+    using APVTS = juce::AudioProcessorValueTreeState;
+    using SliderAttachment = APVTS::SliderAttachment;
+    using ComboBoxAttachment = APVTS::ComboBoxAttachment;
+    SliderAttachment  lowCutFreqSliderAttachment,
+        highCutFreqSliderAttachment,
+        peak1FreqSliderAttachment,
+        peak1GainSliderAttachment,
+        peak1QSliderAttachment,
+        peak2FreqSliderAttachment,
+        peak2GainSliderAttachment,
+        peak2QSliderAttachment;
+
+    ComboBoxAttachment lowCutSlopeAttachment,
+        highCutSlopeAttachment;
 
     std::vector<juce::Component*> getComps();
 

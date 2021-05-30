@@ -10,8 +10,19 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-EQAudioProcessorEditor::EQAudioProcessorEditor (EQAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
+    : AudioProcessorEditor(&p), audioProcessor(p),
+    peak1FreqSliderAttachment(audioProcessor.apvts, "Peak1 Freq", peak1FreqSlider),
+    peak1GainSliderAttachment(audioProcessor.apvts, "Peak1 Gain", peak1GainSlider),
+    peak1QSliderAttachment(audioProcessor.apvts, "Peak1 Q", peak1QSlider),
+    peak2FreqSliderAttachment(audioProcessor.apvts, "Peak2 Freq", peak2FreqSlider),
+    peak2GainSliderAttachment(audioProcessor.apvts, "Peak2 Gain", peak2GainSlider),
+    peak2QSliderAttachment(audioProcessor.apvts, "Peak2 Q", peak2QSlider),
+    lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
+    highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
+    lowCutSlopeAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlope),
+    highCutSlopeAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope)
+
 {
     for (auto* comp : getComps())
     {
