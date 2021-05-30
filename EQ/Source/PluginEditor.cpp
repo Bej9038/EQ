@@ -155,6 +155,19 @@ void EQAudioProcessorEditor::resized()
     peak2QSlider.setBounds(peak2Area);
 }
 
+void EQAudioProcessorEditor::parameterValueChanged(int paramterIndex, float newValue)
+{
+    parametersChanged.set(true);
+}
+
+void EQAudioProcessorEditor::timerCallback()
+{
+    if (parametersChanged.compareAndSetBool(false, true))
+    {
+
+    }
+}
+
 std::vector<juce::Component*> EQAudioProcessorEditor::getComps()
 {
     return
