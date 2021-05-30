@@ -24,6 +24,13 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
     highCutSlopeAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope)
 
 {
+    juce::StringArray arr = {"Slope_12", "Slope_24", "Slope_36", "Slope_48"};
+    lowCutSlope.addItemList(arr, 1);
+    lowCutSlope.setSelectedId(1);
+    highCutSlope.addItemList(arr, 1);
+    highCutSlope.setSelectedId(1);
+    
+
     for (auto* comp : getComps())
     {
         addAndMakeVisible(comp);
