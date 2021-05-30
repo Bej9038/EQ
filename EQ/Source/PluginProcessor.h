@@ -20,7 +20,8 @@ enum Slope
 
 struct ChainSettings
 {
-    float peakFreq{ 0 }, peakGainDB{ 0 }, peakQ{ 1.f };
+    float peak1Freq{ 0 }, peak1GainDB{ 0 }, peak1Q{ 1.f };
+    float peak2Freq{ 0 }, peak2GainDB{ 0 }, peak2Q{ 1.f };
     float lowCutFreq{ 0 }, highCutFreq{ 0 };
     Slope lowCutSlope{ Slope::Slope_12 }, highCutSlope{ Slope::Slope_12 };
 };
@@ -79,14 +80,15 @@ private:
     
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
 
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, Filter, CutFilter>;
 
     MonoChain leftChain, rightChain;
 
     enum ChainPositions
     {
         LowCut,
-        Peak,
+        Peak1,
+        Peak2,
         HighCut
     };
 

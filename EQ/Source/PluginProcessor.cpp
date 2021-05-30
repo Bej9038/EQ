@@ -194,20 +194,29 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     settings.lowCutSlope = static_cast<Slope>(apvts.getRawParameterValue("LowCut Slope")->load());
     settings.highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
     settings.highCutSlope = static_cast<Slope>(apvts.getRawParameterValue("HighCut Slope")->load());
-    settings.peakFreq = apvts.getRawParameterValue("Peak Freq")->load();
-    settings.peakGainDB = apvts.getRawParameterValue("Peak Gain")->load();
-    settings.peakQ = apvts.getRawParameterValue("Peak Q")->load();
+    settings.peak1Freq = apvts.getRawParameterValue("Peak1 Freq")->load();
+    settings.peak1GainDB = apvts.getRawParameterValue("Peak1 Gain")->load();
+    settings.peak1Q = apvts.getRawParameterValue("Peak1 Q")->load();
+    settings.peak2Freq = apvts.getRawParameterValue("Peak2 Freq")->load();
+    settings.peak2GainDB = apvts.getRawParameterValue("Peak2 Gain")->load();
+    settings.peak2Q = apvts.getRawParameterValue("Peak2 Q")->load();
     
     return settings;
 }
 
 void EQAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings)
 {
-    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peakFreq,
-        chainSettings.peakQ,
-        juce::Decibels::decibelsToGain(chainSettings.peakGainDB));
-    updateCoefficients(leftChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
-    updateCoefficients(rightChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+    auto peak1Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peak1Freq,
+        chainSettings.peak1Q,
+        juce::Decibels::decibelsToGain(chainSettings.peak1GainDB));
+    updateCoefficients(leftChain.get<ChainPositions::Peak1>().coefficients, peak1Coefficients);
+    updateCoefficients(rightChain.get<ChainPositions::Peak1>().coefficients, peak1Coefficients);
+
+    auto peak2Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peak2Freq,
+        chainSettings.peak2Q,
+        juce::Decibels::decibelsToGain(chainSettings.peak2GainDB));
+    updateCoefficients(leftChain.get<ChainPositions::Peak2>().coefficients, peak2Coefficients);
+    updateCoefficients(rightChain.get<ChainPositions::Peak2>().coefficients, peak2Coefficients);
 }
 
 void EQAudioProcessor::updateCoefficients(Coefficients& old, const Coefficients& replacements)
@@ -269,19 +278,34 @@ EQAudioProcessor::createParameterLayout()
 
     layout.add(std::make_unique<juce::AudioParameterChoice>("LowCut Slope", "LowCut Slope", strArr, 0));
 
+
+
     layout.add(std::make_unique<juce::AudioParameterFloat>
         ("HighCut Freq", "HighCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .25f), 20000.f));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>("HighCut Slope", "HighCut Slope", strArr, 0));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>
-        ("Peak Freq", "Peak Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .25f), 750.f));
+
 
     layout.add(std::make_unique<juce::AudioParameterFloat>
-        ("Peak Gain", "Peak Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
+        ("Peak1 Freq", "Peak1 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .25f), 200.f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>
-        ("Peak Q", "Peak Q", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
+        ("Peak1 Gain", "Peak1 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>
+        ("Peak1 Q", "Peak1 Q", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
+
+
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>
+        ("Peak2 Freq", "Peak2 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .25f), 3400.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>
+        ("Peak2 Gain", "Peak2 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>
+        ("Peak2 Q", "Peak2 Q", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
 
 
     return layout;
