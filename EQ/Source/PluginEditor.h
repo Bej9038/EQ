@@ -15,8 +15,13 @@ struct CustomRotarySlider : juce::Slider
 {
     CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
         juce::Slider::TextEntryBoxPosition::NoTextBox)
-    {
-    }
+    {}
+};
+
+struct CustomDropDown : juce::ComboBox
+{
+    CustomDropDown() : juce::ComboBox()
+    {}
 };
 
 //==============================================================================
@@ -45,6 +50,8 @@ private:
         peak2QSlider,
         lowCutFreqSlider,
         highCutFreqSlider;
+
+    CustomDropDown lowCutSlope, highCutSlope;
 
     std::vector<juce::Component*> getComps();
 

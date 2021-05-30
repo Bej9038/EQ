@@ -42,12 +42,14 @@ void EQAudioProcessorEditor::resized()
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * .25);
     auto highCutArea = bounds.removeFromRight(bounds.getWidth() * .33);
     auto peak1Area = bounds.removeFromRight(bounds.getWidth() * .5);
-    peak1Area.removeFromTop(peak1Area.getHeight() * .2);
+    peak1Area.removeFromTop(peak1Area.getHeight() * .1);
     auto peak2Area = bounds.removeFromRight(bounds.getWidth());
-    peak2Area.removeFromTop(peak2Area.getHeight() * .2);
+    peak2Area.removeFromTop(peak2Area.getHeight() * .1);
 
     lowCutFreqSlider.setBounds(lowCutArea);
+    lowCutSlope.setBounds(lowCutArea.removeFromBottom(lowCutArea.getCentreY() * .15));
     highCutFreqSlider.setBounds(highCutArea);
+    highCutSlope.setBounds(highCutArea.removeFromBottom(highCutArea.getCentreY() * .15));
 
     peak1FreqSlider.setBounds(peak1Area.removeFromTop(peak1Area.getHeight() * .4));
     peak1GainSlider.setBounds(peak1Area.removeFromTop(peak1Area.getHeight() * .5));
@@ -69,6 +71,8 @@ std::vector<juce::Component*> EQAudioProcessorEditor::getComps()
         &peak2GainSlider,
         &peak2QSlider,
         &lowCutFreqSlider,
-        &highCutFreqSlider
+        &highCutFreqSlider,
+        &lowCutSlope,
+        &highCutSlope
     };
 }
