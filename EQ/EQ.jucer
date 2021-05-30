@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="vmGwDL" name="EQ" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
-              cppLanguageStandard="17">
+              cppLanguageStandard="17" pluginManufacturer="Ben Jordan" pluginName="MyEQ">
   <MAINGROUP id="OUiZ6r" name="EQ">
     <GROUP id="{D90E3331-B057-6E05-23B2-84237AC40C65}" name="Source">
       <FILE id="aqnfwK" name="PluginProcessor.cpp" compile="1" resource="0"
