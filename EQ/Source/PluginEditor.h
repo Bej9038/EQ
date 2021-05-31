@@ -24,12 +24,29 @@ struct CustomComboBox : juce::ComboBox
     {}
 };
 
+struct ResponseCurveComponent : juce::Component,
+    juce::AudioProcessorParameter::Listener,
+    juce::Timer
+{
+    ResponseCurveComponent(EQAudioProcessor&);
+    ~ResponseCurveComponent();
+
+    void parameterValueChanged(int parameterIndex, float newValue) override;
+    void parameterGestureChanged(int parameterIndex, bool genstureIsStarting) override {};
+
+    void timerCallback() override;
+
+    void paint(juce::Graphics& g) override;
+private:
+    EQAudioProcessor& audioProcessor;
+    juce::Atomic<bool> parametersChanged{ false };
+    MonoChain monoChain;
+};
+
 //==============================================================================
 /**
 */
-class EQAudioProcessorEditor : public juce::AudioProcessorEditor,
-    juce::AudioProcessorParameter::Listener,
-    juce::Timer
+class EQAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
     EQAudioProcessorEditor (EQAudioProcessor&);
@@ -39,15 +56,9 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    void parameterValueChanged (int parameterIndex, float newValue) override;
-    void parameterGestureChanged(int parameterIndex, bool genstureIsStarting) override {};
-
-    void timerCallback() override;
-
+    
 private:
     EQAudioProcessor& audioProcessor;
-
-    juce::Atomic<bool> parametersChanged{ false };
 
     CustomRotarySlider  peak1FreqSlider,
         peak1GainSlider,
@@ -59,6 +70,8 @@ private:
         highCutFreqSlider;
 
     CustomComboBox lowCutSlope, highCutSlope;
+
+    ResponseCurveComponent responseCurveComponent;
 
     using APVTS = juce::AudioProcessorValueTreeState;
     using SliderAttachment = APVTS::SliderAttachment;
@@ -76,8 +89,6 @@ private:
         highCutSlopeAttachment;
 
     std::vector<juce::Component*> getComps();
-
-    MonoChain monoChain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQAudioProcessorEditor)
 };

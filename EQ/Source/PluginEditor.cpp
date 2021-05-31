@@ -9,46 +9,37 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-//==============================================================================
-EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
-    : AudioProcessorEditor(&p), audioProcessor(p),
-    peak1FreqSliderAttachment(audioProcessor.apvts, "Peak1 Freq", peak1FreqSlider),
-    peak1GainSliderAttachment(audioProcessor.apvts, "Peak1 Gain", peak1GainSlider),
-    peak1QSliderAttachment(audioProcessor.apvts, "Peak1 Q", peak1QSlider),
-    peak2FreqSliderAttachment(audioProcessor.apvts, "Peak2 Freq", peak2FreqSlider),
-    peak2GainSliderAttachment(audioProcessor.apvts, "Peak2 Gain", peak2GainSlider),
-    peak2QSliderAttachment(audioProcessor.apvts, "Peak2 Q", peak2QSlider),
-    lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
-    highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
-    lowCutSlopeAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlope),
-    highCutSlopeAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope)
-
+ResponseCurveComponent::ResponseCurveComponent(EQAudioProcessor& p)
+void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float newValue)
 {
-    juce::StringArray arr = {"Slope_12", "Slope_24", "Slope_36", "Slope_48"};
-    lowCutSlope.addItemList(arr, 1);
-    lowCutSlope.setSelectedId(1);
-    highCutSlope.addItemList(arr, 1);
-    highCutSlope.setSelectedId(1);
-    
+    parametersChanged.set(true);
+}
 
-    for (auto* comp : getComps())
+void ResponseCurveComponent::timerCallback()
+{
+    if (parametersChanged.compareAndSetBool(false, true))
     {
-        addAndMakeVisible(comp);
+        auto chainSettings = getChainSettings(audioProcessor.apvts);
+        auto peak1Coefficients = makePeak1(chainSettings, audioProcessor.getSampleRate());
+        auto peak2Coefficients = makePeak2(chainSettings, audioProcessor.getSampleRate());
+
+        updateCoefficients(monoChain.get<ChainPositions::Peak1>().coefficients, peak1Coefficients);
+        updateCoefficients(monoChain.get<ChainPositions::Peak2>().coefficients, peak2Coefficients);
+
+        auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
+        auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate());
+
+        updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
+        updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
+        repaint();
     }
-    setSize (800, 400);
 }
 
-EQAudioProcessorEditor::~EQAudioProcessorEditor()
-{
-}
-
-//==============================================================================
-void EQAudioProcessorEditor::paint (juce::Graphics& g)
+void ResponseCurveComponent::paint(juce::Graphics& g)
 {
     using namespace juce;
-    g.fillAll (Colours::black);
-    auto bounds = getLocalBounds();
-    auto responseArea = bounds.removeFromTop(bounds.getHeight() * .33);
+    g.fillAll(Colours::black);
+    auto responseArea = getLocalBounds();
     auto w = responseArea.getWidth();
     auto& lc = monoChain.get<ChainPositions::LowCut>();
     auto& p1 = monoChain.get<ChainPositions::Peak1>();
@@ -129,10 +120,49 @@ void EQAudioProcessorEditor::paint (juce::Graphics& g)
     g.strokePath(responseCurve, PathStrokeType(2.f));
 }
 
+//==============================================================================
+
+EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
+    : AudioProcessorEditor(&p), audioProcessor(p),
+    responseCurveComponent(audioProcessor),
+    peak1FreqSliderAttachment(audioProcessor.apvts, "Peak1 Freq", peak1FreqSlider),
+    peak1GainSliderAttachment(audioProcessor.apvts, "Peak1 Gain", peak1GainSlider),
+    peak1QSliderAttachment(audioProcessor.apvts, "Peak1 Q", peak1QSlider),
+    peak2FreqSliderAttachment(audioProcessor.apvts, "Peak2 Freq", peak2FreqSlider),
+    peak2GainSliderAttachment(audioProcessor.apvts, "Peak2 Gain", peak2GainSlider),
+    peak2QSliderAttachment(audioProcessor.apvts, "Peak2 Q", peak2QSlider),
+    lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
+    highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
+    lowCutSlopeAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlope),
+    highCutSlopeAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope)
+
+{
+    juce::StringArray arr = {"Slope_12", "Slope_24", "Slope_36", "Slope_48"};
+    lowCutSlope.addItemList(arr, 1);
+    lowCutSlope.setSelectedId(1);
+    highCutSlope.addItemList(arr, 1);
+    highCutSlope.setSelectedId(1);
+    
+
+    for (auto* comp : getComps())
+    {
+        addAndMakeVisible(comp);
+    }
+
+    setSize (800, 400);
+}
+
+void EQAudioProcessorEditor::paint (juce::Graphics& g)
+{
+    g.fillAll (juce::Colours::black);
+}
+
 void EQAudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds();
     auto responseArea = bounds.removeFromTop(bounds.getHeight() * .33);
+
+    responseCurveComponent.setBounds(responseArea);
 
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * .25);
     auto highCutArea = bounds.removeFromRight(bounds.getWidth() * .33);
@@ -155,19 +185,6 @@ void EQAudioProcessorEditor::resized()
     peak2QSlider.setBounds(peak2Area);
 }
 
-void EQAudioProcessorEditor::parameterValueChanged(int paramterIndex, float newValue)
-{
-    parametersChanged.set(true);
-}
-
-void EQAudioProcessorEditor::timerCallback()
-{
-    if (parametersChanged.compareAndSetBool(false, true))
-    {
-
-    }
-}
-
 std::vector<juce::Component*> EQAudioProcessorEditor::getComps()
 {
     return
@@ -181,6 +198,7 @@ std::vector<juce::Component*> EQAudioProcessorEditor::getComps()
         &lowCutFreqSlider,
         &highCutFreqSlider,
         &lowCutSlope,
-        &highCutSlope
+        &highCutSlope,
+        &responseCurveComponent
     };
 }
