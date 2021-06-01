@@ -11,11 +11,40 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-struct CustomRotarySlider : juce::Slider
+struct LookAndFeel : juce::LookAndFeel_V4
 {
-    CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
-        juce::Slider::TextEntryBoxPosition::NoTextBox)
-    {}
+    void drawRotarySlider(juce::Graphics&,
+        int x, int y, int width, int height,
+        float sliderPosProportional,
+        float rotaryStartAngle,
+        float rotaryEndAngle,
+        juce::Slider&) override {};
+};
+
+struct RotarySliderWithLabels : juce::Slider
+{
+    RotarySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) : 
+        juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+        juce::Slider::TextEntryBoxPosition::NoTextBox),
+        param(&rap),
+        suffix(unitSuffix)
+    {
+        setLookAndFeel(&lnf);
+    }
+
+    ~RotarySliderWithLabels()
+    {
+        setLookAndFeel(nullptr);
+    }
+
+    void paint(juce::Graphics& g) override {};
+    juce::Rectangle<int> getSliderBounds() const;
+    int gettextheight() const { return 14; }
+    juce::String getDisplayString() const;
+private:
+    LookAndFeel lnf;
+    juce::RangedAudioParameter* param;
+    juce::String suffix;
 };
 
 struct CustomComboBox : juce::ComboBox
@@ -29,7 +58,7 @@ struct ResponseCurveComponent : juce::Component,
     juce::Timer
 {
     ResponseCurveComponent(EQAudioProcessor&);
-    ~ResponseCurveComponent();
+
 
     void parameterValueChanged(int parameterIndex, float newValue) override;
     void parameterGestureChanged(int parameterIndex, bool genstureIsStarting) override {};
@@ -50,9 +79,8 @@ class EQAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
     EQAudioProcessorEditor (EQAudioProcessor&);
-    ~EQAudioProcessorEditor() override;
+    /*~EQAudioProcessorEditor() override;*/
 
-    //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
@@ -60,7 +88,7 @@ public:
 private:
     EQAudioProcessor& audioProcessor;
 
-    CustomRotarySlider  peak1FreqSlider,
+    RotarySliderWithLabels  peak1FreqSlider,
         peak1GainSlider,
         peak1QSlider,
         peak2FreqSlider,

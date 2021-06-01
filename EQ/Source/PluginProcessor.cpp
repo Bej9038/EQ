@@ -119,10 +119,6 @@ bool EQAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
     juce::ignoreUnused (layouts);
     return true;
   #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
@@ -164,13 +160,12 @@ void EQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
 //==============================================================================
 bool EQAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 juce::AudioProcessorEditor* EQAudioProcessor::createEditor()
 {
     return new EQAudioProcessorEditor (*this);
-    /*return new juce::GenericAudioProcessorEditor(*this);*/
 }
 
 //==============================================================================
@@ -296,25 +291,24 @@ EQAudioProcessor::createParameterLayout()
 
 
     layout.add(std::make_unique<juce::AudioParameterFloat>
-        ("Peak1 Freq", "Peak1 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .25f), 130.f));
+        ("Peak1 Freq", "Peak1 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .25f), 1300.f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>
         ("Peak1 Gain", "Peak1 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>
-        ("Peak1 Q", "Peak1 Q", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 2.7f), 1.f));
+        ("Peak1 Q", "Peak1 Q", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 2.7f));
 
 
 
     layout.add(std::make_unique<juce::AudioParameterFloat>
-        ("Peak2 Freq", "Peak2 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .25f), 130.f));
+        ("Peak2 Freq", "Peak2 Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, .25f), 1300.f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>
         ("Peak2 Gain", "Peak2 Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>
-        ("Peak2 Q", "Peak2 Q", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 2.7f), 1.f));
-
+        ("Peak2 Q", "Peak2 Q", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 2.7f));
 
     return layout;
 }

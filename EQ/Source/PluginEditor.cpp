@@ -9,7 +9,15 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-ResponseCurveComponent::ResponseCurveComponent(EQAudioProcessor& p)
+ResponseCurveComponent::ResponseCurveComponent(EQAudioProcessor& p) : audioProcessor(p)
+{
+    const auto& params = audioProcessor.getParameters();
+    for (auto param : params)
+    {
+        param->addListener(this);
+    }
+    startTimerHz(60);
+}
 void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float newValue)
 {
     parametersChanged.set(true);
@@ -38,9 +46,14 @@ void ResponseCurveComponent::timerCallback()
 void ResponseCurveComponent::paint(juce::Graphics& g)
 {
     using namespace juce;
-    g.fillAll(Colours::black);
+
     auto responseArea = getLocalBounds();
     auto w = responseArea.getWidth();
+    /*g.fillAll(Colour(26, 33, 32));*/
+    DropShadow shadow = DropShadow(Colour(0, 0, 0), -100, { 0, 0 });
+    shadow.drawForRectangle(g, responseArea);
+    
+    
     auto& lc = monoChain.get<ChainPositions::LowCut>();
     auto& p1 = monoChain.get<ChainPositions::Peak1>();
     auto& p2 = monoChain.get<ChainPositions::Peak2>();
@@ -116,7 +129,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
 
-    g.setColour(Colours::white);
+    g.setColour(Colour(128, 203, 196));
     g.strokePath(responseCurve, PathStrokeType(2.f));
 }
 
@@ -124,6 +137,15 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 
 EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p),
+    peak1FreqSlider(*audioProcessor.apvts.getParameter("Peak1 Freq"), "Hz"),
+    peak1GainSlider(*audioProcessor.apvts.getParameter("Peak1 Gain"), "dB"),
+    peak1QSlider(*audioProcessor.apvts.getParameter("Peak1 Q"), ""),
+    peak2FreqSlider(*audioProcessor.apvts.getParameter("Peak2 Freq"), "Hz"),
+    peak2GainSlider(*audioProcessor.apvts.getParameter("Peak2 Gain"), "dB"),
+    peak2QSlider(*audioProcessor.apvts.getParameter("Peak2 Q"), ""),
+    lowCutFreqSlider(*audioProcessor.apvts.getParameter("LowCut Freq"), "Hz"),
+    highCutFreqSlider(*audioProcessor.apvts.getParameter("HighCut Freq"), "Hz"),
+
     responseCurveComponent(audioProcessor),
     peak1FreqSliderAttachment(audioProcessor.apvts, "Peak1 Freq", peak1FreqSlider),
     peak1GainSliderAttachment(audioProcessor.apvts, "Peak1 Gain", peak1GainSlider),
@@ -154,7 +176,7 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
 
 void EQAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::black);
+    g.fillAll (juce::Colour(18, 18, 18));
 }
 
 void EQAudioProcessorEditor::resized()
