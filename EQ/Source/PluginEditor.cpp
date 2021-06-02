@@ -117,7 +117,30 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 
 juce::String RotarySliderWithLabels::getDisplayString() const
 {
-    return juce::String(getValue());
+    if (auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param))
+    {
+        return choiceParam->getCurrentChoiceName();
+    }
+
+    juce::String str;
+    bool addK = false;
+    float val = getValue();
+    if (val > 999.f)
+    {
+        val /= 1000.f;
+        addK = true;
+    }
+    str = juce::String(val, (addK ? 2 : 0));
+    if (suffix.isNotEmpty())
+    {
+        str << " ";
+        if (addK)
+        {
+            str << "k";
+        }
+        str << suffix;
+    }
+    return str;
 }
 
 //==============================================================================
@@ -178,7 +201,8 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     for (int i = 0; i < w; ++i)
     {
         double mag = 1.f;
-        auto freq = mapToLog10(double(i) / double(w), 20.0, 20000.0);
+        auto freq = std::pow(2.0, (double(i) / double(w) * (std::log2(20000) - std::log2(20)) + std::log2(20)));
+        /*auto freq = (double(i) / double(w)) * (20000 - 20) + 20;*/
 
         if (!monoChain.isBypassed<ChainPositions::Peak1>())
         {
