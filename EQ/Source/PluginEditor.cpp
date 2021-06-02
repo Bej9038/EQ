@@ -9,11 +9,12 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-juce::Colour MainColor = juce::Colour(187, 134, 252);
-juce::Colour MainColor2 = juce::Colour(55, 0, 179);
-juce::Colour BGColor = juce::Colour(18, 18, 18);
+juce::Colour MainColor = juce::Colour(255, 171, 145);
+juce::Colour BGColor = juce::Colour(33, 33, 33);
+juce::Colour GridColor = juce::Colour(66, 66, 66);
 float overlay1Alpha = .04;
-float gridAlpha = .10;
+float gridAlpha = .8;
+float gridGap = 35;
 
 void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     int x, int y, int width, int height,
@@ -212,7 +213,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 {
     using namespace juce;
 
-    auto responseArea = getLocalBounds();
+    auto responseArea = getRenderArea();
     auto w = responseArea.getWidth();
     g.fillAll(Colours::black);
     g.drawImage(background, getLocalBounds().toFloat());
@@ -303,29 +304,83 @@ void ResponseCurveComponent::resized()
     using namespace juce;
     background = Image(Image::PixelFormat::RGB, getWidth(), getHeight(), true);
     Graphics g(background);
+    auto renderArea = getRenderArea();
+    auto left = renderArea.getX();
+    auto right = renderArea.getRight();
+    auto top = renderArea.getY();
+    auto bottom = renderArea.getBottom();
+    auto width = renderArea.getWidth();
 
     Array<float> freqs
     {
         20, 30, 40, 50, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000
     };
 
-    g.setColour(juce::Colours::white.withAlpha(gridAlpha));
+    Array<float> xs;
     for (auto f : freqs)
     {
         auto normX = mapFromLog10(f, 20.f, 20000.f);
-        g.drawVerticalLine(getWidth() * normX, 0.f, getHeight());
+        xs.add(left + width * normX);
+    }
+
+    ColourGradient vgradient1 = ColourGradient(Colours::white.withAlpha(0.f), 0, 0, GridColor.withAlpha(gridAlpha), 0, gridGap, false);
+    ColourGradient vgradient2 = ColourGradient(Colours::white.withAlpha(0.f), 0, getHeight(), GridColor.withAlpha(gridAlpha), 0, getHeight() - gridGap, false);
+    g.setGradientFill(vgradient1);
+    for (auto f : freqs)
+    {
+        auto normX = mapFromLog10(f, 20.f, 20000.f);
+        g.drawVerticalLine(getWidth() * normX, 0.f, getHeight() * .5);
+    }
+    g.setGradientFill(vgradient2);
+    for (auto f : freqs)
+    {
+        auto normX = mapFromLog10(f, 20.f, 20000.f);
+        g.drawVerticalLine(getWidth() * normX, getHeight() * .5, getHeight());
     }
 
     Array<float> gain
     {
         -24, -12, 0, 12, 24
     };
+    ColourGradient hgradient1 = ColourGradient(Colours::white.withAlpha(0.f), 0, 0, GridColor.withAlpha(gridAlpha), gridGap, 0, false);
+    ColourGradient hgradient2 = ColourGradient(Colours::white.withAlpha(0.f), getWidth(), 0, GridColor.withAlpha(gridAlpha), getWidth() - gridGap, 0, false);
 
+    g.setGradientFill(hgradient1);
     for (auto gDb : gain)
     {
         auto y = jmap(gDb, -24.f, 24.f, float(getHeight()), 0.f);
-        g.drawHorizontalLine(y, 0, getWidth());
+        g.drawHorizontalLine(y, 0, getWidth() * .5);
     }
+    g.setGradientFill(hgradient2);
+    for (auto gDb : gain)
+    {
+        auto y = jmap(gDb, -24.f, 24.f, float(getHeight()), 0.f);
+        g.drawHorizontalLine(y, getWidth() * .5, getWidth());
+    }
+
+    auto y = jmap(0.f, -24.f, 24.f, float(getHeight()), 0.f);
+    g.setGradientFill(ColourGradient(Colours::white.withAlpha(0.f), 0, 0, MainColor.withAlpha(.25f), gridGap, 0, false));
+    g.drawHorizontalLine(y, 0, getWidth() * .5);
+    g.setGradientFill(ColourGradient(Colours::white.withAlpha(0.f), getWidth(), 0, MainColor.withAlpha(.25f), getWidth() - gridGap, 0, false));
+    g.drawHorizontalLine(y, getWidth() * .5, getWidth());
+
+}
+
+juce::Rectangle<int> ResponseCurveComponent::getRenderArea()
+{
+    auto bounds = getLocalBounds();
+
+    bounds.reduce(10, 8);
+    return bounds;
+}
+
+juce::Rectangle<int> ResponseCurveComponent::getAnalysisArea()
+{
+    auto bounds = getLocalBounds();
+
+    bounds.removeFromTop(gridGap);
+    bounds.removeFromBottom(gridGap);
+    return bounds;
 }
 
 //==============================================================================
