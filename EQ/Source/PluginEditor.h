@@ -19,7 +19,6 @@ struct LookAndFeel : juce::LookAndFeel_V4
         float rotaryStartAngle,
         float rotaryEndAngle,
         juce::Slider&) override;
-
 };
 
 struct RotarySliderWithLabels : juce::Slider
@@ -48,8 +47,8 @@ struct RotarySliderWithLabels : juce::Slider
 
     void paint(juce::Graphics& g) override;
     juce::Rectangle<int> getSliderBounds() const;
-    int getTextHeight() const { return 14; }
-    int getLabelTextHeight() const { return 10; }
+    juce::Font getTextHeight() const { return juce::Font("Roboto", 14, 1); }
+    juce::Font getLabelTextHeight() const { return juce::Font("Roboto", 10, 0); }
     juce::String getDisplayString() const;
 private:
     LookAndFeel lnf;
@@ -69,17 +68,19 @@ struct ResponseCurveComponent : juce::Component,
 {
     ResponseCurveComponent(EQAudioProcessor&);
 
-
     void parameterValueChanged(int parameterIndex, float newValue) override;
     void parameterGestureChanged(int parameterIndex, bool genstureIsStarting) override {};
-
     void timerCallback() override;
-
     void paint(juce::Graphics& g) override;
+    void resized() override;
+
 private:
     EQAudioProcessor& audioProcessor;
     juce::Atomic<bool> parametersChanged{ false };
     MonoChain monoChain;
+    void updateChain();
+    juce::Image background;
+
 };
 
 //==============================================================================
