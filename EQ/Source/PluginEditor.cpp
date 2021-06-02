@@ -364,6 +364,35 @@ void ResponseCurveComponent::resized()
     g.setGradientFill(ColourGradient(Colours::white.withAlpha(0.f), getWidth(), 0, MainColor.withAlpha(.25f), getWidth() - gridGap, 0, false));
     g.drawHorizontalLine(y, getWidth() * .5, getWidth());
 
+    g.setColour(Colours::white.withAlpha(.5f));
+    Font font = juce::Font("Roboto", 8, 0);
+    g.setFont(font);
+
+    for (int i = 1; i < freqs.size() - 1; ++i)
+    {
+        auto f = freqs[i];
+        auto normX = mapFromLog10(f, 20.f, 20000.f);
+
+        bool addK = false;
+        String str;
+        if (f > 999.f)
+        {
+            addK = true;
+            f /= 1000.f;
+        }
+        str << f;
+        if (addK)
+        {
+            str << "k";
+        }
+
+        auto textWidth = g.getCurrentFont().getStringWidth(str);
+        Rectangle<int> r;
+        r.setSize(textWidth, font.getHeight());
+        r.setCentre(getWidth() * normX, 0);
+        r.setY(getLocalBounds().getHeight() - (font.getHeight() + 1));
+        g.drawFittedText(str, r, juce::Justification::verticallyCentred, 1);
+    }
 }
 
 juce::Rectangle<int> ResponseCurveComponent::getRenderArea()
