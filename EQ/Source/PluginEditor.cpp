@@ -99,6 +99,27 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
                                             jmap(getValue(), range.getStart(), 
                                                              range.getEnd(), 0.0, 1.0),
                                                              startAng, endAng, *this);
+    auto center = sliderBounds.toFloat().getCentre();
+    auto radius = sliderBounds.getWidth() * .5f;
+    g.setColour(MainColor);
+    g.setFont(getLabelTextHeight());
+
+    auto numChoices = labels.size();
+    for (int i = 0; i < numChoices; ++i)
+    {
+        auto pos = labels[i].pos;
+        jassert(0.f <= pos);
+        jassert(1.f >= pos);
+        auto ang = jmap(pos, 0.f, 1.f, startAng, endAng);
+        auto c = center.getPointOnCircumference(radius + getTextHeight() * .5f + 1, ang);
+        Rectangle<float> r;
+        auto str = labels[i].label;
+        r.setSize(g.getCurrentFont().getStringWidth(str), getTextHeight());
+        r.setCentre(c);
+        r.setY(r.getY() + getTextHeight());
+
+        g.drawFittedText(str, r.toNearestInt(), juce::Justification::verticallyCentred, 1);
+    }
 }
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
@@ -303,12 +324,31 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
     highCutSlope.setSelectedId(1);
     
 
+    peak1FreqSlider.labels.add({ 0.f, "20Hz" });
+    peak1FreqSlider.labels.add({ 1.f, "20kHz" });
+    peak1GainSlider.labels.add({ 0.f, "-24dB" });
+    peak1GainSlider.labels.add({ 1.f, "24dB" });
+    peak1QSlider.labels.add({ 0.f, ".025" });
+    peak1QSlider.labels.add({ 1.f, "10" });
+
+    peak2FreqSlider.labels.add({ 0.f, "20Hz" });
+    peak2FreqSlider.labels.add({ 1.f, "20kHz" });
+    peak2GainSlider.labels.add({ 0.f, "-24dB" });
+    peak2GainSlider.labels.add({ 1.f, "24dB" });
+    peak2QSlider.labels.add({ 0.f, ".025" });
+    peak2QSlider.labels.add({ 1.f, "10" });
+
+    lowCutFreqSlider.labels.add({ 0.f, "20Hz" });
+    lowCutFreqSlider.labels.add({ 1.f, "20kHz" });
+    highCutFreqSlider.labels.add({ 0.f, "20Hz" });
+    highCutFreqSlider.labels.add({ 1.f, "20kHz" });
+
     for (auto* comp : getComps())
     {
         addAndMakeVisible(comp);
     }
 
-    setSize (800, 400);
+    setSize (800, 600);
 }
 
 void EQAudioProcessorEditor::paint (juce::Graphics& g)
