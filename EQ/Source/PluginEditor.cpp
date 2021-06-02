@@ -393,6 +393,32 @@ void ResponseCurveComponent::resized()
         r.setY(getLocalBounds().getHeight() - (font.getHeight() + 1));
         g.drawFittedText(str, r, juce::Justification::verticallyCentred, 1);
     }
+
+    for (int i = 1; i < gain.size() - 1; ++i)
+    {
+        auto gDb = gain[i];
+        auto y = jmap(gDb, -24.f, 24.f, float(getHeight()), 0.f);
+        String str;
+        if (gDb > 0)
+        {
+            str << "+";
+        }
+        str << gDb;
+        auto textWidth = g.getCurrentFont().getStringWidth(str);
+        Rectangle<int> r;
+        r.setSize(textWidth, font.getHeight());
+        r.setX(getWidth() - textWidth);
+        r.setCentre(r.getCentreX() - 1, y+1);
+        if (i == 2)
+        {
+            g.setColour(MainColor.withAlpha(.5f));
+        }
+        else
+        {
+            g.setColour(Colours::white.withAlpha(.5f));
+        }
+        g.drawFittedText(str, r, juce::Justification::centred, 1);
+    }
 }
 
 juce::Rectangle<int> ResponseCurveComponent::getRenderArea()
