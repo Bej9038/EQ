@@ -173,6 +173,21 @@ struct LookAndFeel : juce::LookAndFeel_V4
         float rotaryStartAngle,
         float rotaryEndAngle,
         juce::Slider&) override;
+
+    void drawToggleButton(juce::Graphics& g,juce::ToggleButton& toggleButton,
+        bool shouldDrawButtonAsHighlighted,
+        bool shouldDrawButtonAsDown) override;
+
+    void drawComboBox(juce::Graphics& g,
+        int 	width,
+        int 	height,
+        bool 	isButtonDown,
+        int 	buttonX,
+        int 	buttonY,
+        int 	buttonW,
+        int 	buttonH,
+        juce::ComboBox& comboBox) {};
+
 };
 
 struct RotarySliderWithLabels : juce::Slider
@@ -304,5 +319,6 @@ private:
     ComboBoxAttachment lowCutSlopeAttachment,
         highCutSlopeAttachment;
     std::vector<juce::Component*> getComps();
+    LookAndFeel lnf;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQAudioProcessorEditor)
 };

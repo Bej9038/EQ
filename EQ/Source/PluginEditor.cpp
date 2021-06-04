@@ -13,6 +13,7 @@ juce::Colour MainColor = juce::Colour(255, 138, 101);
 juce::Colour BGColor = juce::Colour(33, 33, 33);
 juce::Colour GridColor = juce::Colour(66, 66, 66);
 float overlay1Alpha = .04;
+float textAlpha = .5;
 float gridAlpha = .8;
 float gridGap = 35;
 
@@ -82,6 +83,32 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
     g.setColour(MainColor);
     g.fillPath(p);
+}
+
+void LookAndFeel::drawToggleButton(juce::Graphics& g,
+    juce::ToggleButton& toggleButton,
+    bool shouldDrawButtonAsHighlighted,
+    bool shouldDrawButtonAsDrown)
+{
+    using namespace juce;
+    Path powerButton;
+    auto bounds = toggleButton.getLocalBounds();
+    auto size = jmin(bounds.getWidth()-10, bounds.getHeight()) - 10;
+    auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
+    size -= 6;
+    bounds.removeFromRight(bounds.getWidth() * .33);
+    bounds.removeFromLeft(bounds.getWidth() * .33);
+  
+    PathStrokeType pst = PathStrokeType(2.f, PathStrokeType::JointStyle::curved);
+    auto colorEdge = toggleButton.getToggleState() ? Colours::white.withAlpha(textAlpha) : Colours::white.withAlpha(0.f);
+    auto colorFill = toggleButton.getToggleState() ? ColourGradient(Colours::white.withAlpha(0.f), 0, 0, Colours::white.withAlpha(0.f), 0, 0, false) : ColourGradient(MainColor, r.getCentreX(), r.getCentreY(), MainColor.withAlpha(.1f), r.getCentreX()-size + 2, r.getCentreY()-size + 2, true);
+    g.setColour(colorEdge);
+    g.strokePath(powerButton, pst);
+    g.drawRoundedRectangle(r, 4.f, 1.f);
+    g.setGradientFill(colorFill);
+    g.fillRoundedRectangle(r, 4.f);
+
+
 }
 
 void RotarySliderWithLabels::paint(juce::Graphics& g)
@@ -430,7 +457,7 @@ void ResponseCurveComponent::resized()
     g.setGradientFill(ColourGradient(Colours::white.withAlpha(0.f), getWidth(), 0, MainColor.withAlpha(.25f), getWidth() - gridGap, 0, false));
     g.drawHorizontalLine(y, getWidth() * .5, getWidth());
 
-    g.setColour(Colours::white.withAlpha(.5f));
+    g.setColour(Colours::white.withAlpha(textAlpha));
     Font font = juce::Font("Roboto", 8, 0);
     g.setFont(font);
 
@@ -477,11 +504,11 @@ void ResponseCurveComponent::resized()
         r.setCentre(r.getCentreX() - 1, y+1);
         if (i == 2)
         {
-            g.setColour(MainColor.withAlpha(.5f));
+            g.setColour(MainColor.withAlpha(textAlpha));
         }
         else
         {
-            g.setColour(Colours::white.withAlpha(.5f));
+            g.setColour(Colours::white.withAlpha(textAlpha));
         }
         g.drawFittedText(str, r, juce::Justification::centred, 1);
     }
@@ -573,6 +600,11 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
         addAndMakeVisible(comp);
     }
 
+    peak1BypassButton.setLookAndFeel(&lnf);
+    peak2BypassButton.setLookAndFeel(&lnf);
+    lowCutBypassButton.setLookAndFeel(&lnf);
+    highCutBypassButton.setLookAndFeel(&lnf);
+
     setSize (800, 600);
 }
 
@@ -596,11 +628,13 @@ void EQAudioProcessorEditor::resized()
 
     lowCutBypassButton.setBounds(lowCutArea.removeFromTop(25));
     lowCutFreqSlider.setBounds(lowCutArea);
-    lowCutSlope.setBounds(lowCutArea.removeFromBottom(lowCutArea.getCentreY() * .15));
+    lowCutQSlider.setBounds(lowCutArea.removeFromBottom(lowCutArea.getHeight() * .4));
+    lowCutSlope.setBounds(lowCutArea.removeFromBottom(lowCutArea.getHeight() * .5));
 
     highCutBypassButton.setBounds(highCutArea.removeFromTop(25));
     highCutFreqSlider.setBounds(highCutArea);
-    highCutSlope.setBounds(highCutArea.removeFromBottom(highCutArea.getCentreY() * .15));
+    highCutQSlider.setBounds(highCutArea.removeFromBottom(highCutArea.getHeight() *.4));
+    highCutSlope.setBounds(highCutArea.removeFromBottom(highCutArea.getHeight() * .5));
 
     peak1BypassButton.setBounds(peak1Area.removeFromTop(25));
     peak1FreqSlider.setBounds(peak1Area.removeFromTop(peak1Area.getHeight() * .4));
