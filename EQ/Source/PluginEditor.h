@@ -269,6 +269,8 @@ private:
         peak2GainSlider,
         peak2QSlider,
         lowCutFreqSlider,
+        lowCutQSlider,
+        highCutQSlider,
         highCutFreqSlider;
 
     CustomComboBox lowCutSlope, highCutSlope;
@@ -276,14 +278,28 @@ private:
     using APVTS = juce::AudioProcessorValueTreeState;
     using SliderAttachment = APVTS::SliderAttachment;
     using ComboBoxAttachment = APVTS::ComboBoxAttachment;
+    using ToggleButtonAttachment = APVTS::ButtonAttachment;
     SliderAttachment  lowCutFreqSliderAttachment,
+        lowCutQSliderAttachment,
         highCutFreqSliderAttachment,
+        highCutQSliderAttachment,
         peak1FreqSliderAttachment,
         peak1GainSliderAttachment,
         peak1QSliderAttachment,
         peak2FreqSliderAttachment,
         peak2GainSliderAttachment,
         peak2QSliderAttachment;
+
+    juce::ToggleButton lowCutBypassButton, 
+        highCutBypassButton, 
+        peak1BypassButton,
+        peak2BypassButton;
+
+    ToggleButtonAttachment 
+        lowCutBypassButtonAttachment, 
+        highCutBypassButtonAttachment, 
+        peak1BypassButtonAttachment, 
+        peak2BypassButtonAttachment;
 
     ComboBoxAttachment lowCutSlopeAttachment,
         highCutSlopeAttachment;

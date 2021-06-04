@@ -153,9 +153,15 @@ enum Slope
 struct ChainSettings
 {
     float peak1Freq{ 0 }, peak1GainDB{ 0 }, peak1Q{ 1.f };
+
     float peak2Freq{ 0 }, peak2GainDB{ 0 }, peak2Q{ 1.f };
-    float lowCutFreq{ 0 }, highCutFreq{ 0 };
+
+    float lowCutFreq{ 0 }, lowCutQ{ 0 };
+    float highCutFreq{ 0 }, highCutQ{0};
+
     Slope lowCutSlope{ Slope::Slope_12 }, highCutSlope{ Slope::Slope_12 };
+
+    bool lowCutBypass{ false }, highCutBypass{ false }, peak1Bypass{ false }, peak2Bypass{ false };
 };
 
 using Filter = juce::dsp::IIR::Filter<float>;
@@ -214,13 +220,13 @@ inline auto makeLowCutFilter(const ChainSettings& chainSettings, double sampleRa
 {
     return juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq,
         sampleRate,
-        2 * (chainSettings.lowCutSlope + 1));
+        2 * (chainSettings.lowCutSlope + 1), chainSettings.lowCutQ);
 }
 inline auto makeHighCutFilter(const ChainSettings& chainSettings, double sampleRate)
 {
     return juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCutFreq,
         sampleRate,
-        2 * (chainSettings.highCutSlope + 1));
+        2 * (chainSettings.highCutSlope + 1), chainSettings.highCutQ);
 }
 //==============================================================================
 /**
@@ -266,3 +272,4 @@ private:
     void updateHighCutFilters(const ChainSettings& chainSettings);
     void updateFilters();
 };
+
