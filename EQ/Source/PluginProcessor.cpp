@@ -94,23 +94,15 @@ void EQAudioProcessor::changeProgramName (int index, const juce::String& newName
 void EQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     juce::dsp::ProcessSpec spec;
-
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = 1;
     spec.sampleRate = sampleRate;
 
     leftChain.prepare(spec);
     rightChain.prepare(spec);
-
-    updateFilters();
-   
     leftChannelFifo.prepare(samplesPerBlock);
     rightChannelFifo.prepare(samplesPerBlock);
-
-    osc.initialise([](float x) {return std::sin(x); });
-    spec.numChannels = getTotalNumOutputChannels();
-    osc.prepare(spec);
-    osc.setFrequency(1000);
+    updateFilters();
 }
 
 void EQAudioProcessor::releaseResources()
@@ -153,9 +145,6 @@ void EQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     updateFilters();
 
     juce::dsp::AudioBlock<float> block(buffer);
-    buffer.clear();
-    juce::dsp::ProcessContextReplacing<float> stereoContext(block);
-    osc.process(stereoContext);
 
     auto leftBlock = block.getSingleChannelBlock(0);
     auto rightBlock = block.getSingleChannelBlock(1);
