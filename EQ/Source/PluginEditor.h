@@ -186,7 +186,7 @@ struct LookAndFeel : juce::LookAndFeel_V4
         int 	buttonY,
         int 	buttonW,
         int 	buttonH,
-        juce::ComboBox& comboBox) {};
+        juce::ComboBox& comboBox) override;
 
 };
 
@@ -219,12 +219,6 @@ private:
     LookAndFeel lnf;
     juce::RangedAudioParameter* param;
     juce::String suffix;
-};
-
-struct CustomComboBox : juce::ComboBox
-{
-    CustomComboBox() : juce::ComboBox()
-    {}
 };
 
 struct PathProducer
@@ -262,7 +256,6 @@ private:
     void updateChain();
     juce::Image background;
     juce::Rectangle<int> getRenderArea();
-    juce::Rectangle<int> getAnalysisArea();
     PathProducer leftPathProducer, rightPathProducer;
 };
 
@@ -277,7 +270,15 @@ public:
     void resized() override;
 private:
     EQAudioProcessor& audioProcessor;
-    RotarySliderWithLabels  peak1FreqSlider,
+    ResponseCurveComponent responseCurveComponent;
+
+    using APVTS = juce::AudioProcessorValueTreeState;
+    using SliderAttachment = APVTS::SliderAttachment;
+    using ComboBoxAttachment = APVTS::ComboBoxAttachment;
+    using ToggleButtonAttachment = APVTS::ButtonAttachment;
+
+    RotarySliderWithLabels  
+        peak1FreqSlider,
         peak1GainSlider,
         peak1QSlider,
         peak2FreqSlider,
@@ -287,14 +288,8 @@ private:
         lowCutQSlider,
         highCutQSlider,
         highCutFreqSlider;
-
-    CustomComboBox lowCutSlope, highCutSlope;
-    ResponseCurveComponent responseCurveComponent;
-    using APVTS = juce::AudioProcessorValueTreeState;
-    using SliderAttachment = APVTS::SliderAttachment;
-    using ComboBoxAttachment = APVTS::ComboBoxAttachment;
-    using ToggleButtonAttachment = APVTS::ButtonAttachment;
-    SliderAttachment  lowCutFreqSliderAttachment,
+    SliderAttachment  
+        lowCutFreqSliderAttachment,
         lowCutQSliderAttachment,
         highCutFreqSliderAttachment,
         highCutQSliderAttachment,
@@ -304,20 +299,20 @@ private:
         peak2FreqSliderAttachment,
         peak2GainSliderAttachment,
         peak2QSliderAttachment;
-
-    juce::ToggleButton lowCutBypassButton, 
+    juce::ToggleButton 
+        lowCutBypassButton, 
         highCutBypassButton, 
         peak1BypassButton,
         peak2BypassButton;
-
     ToggleButtonAttachment 
         lowCutBypassButtonAttachment, 
         highCutBypassButtonAttachment, 
         peak1BypassButtonAttachment, 
         peak2BypassButtonAttachment;
-
+    juce::ComboBox lowCutSlope, highCutSlope;
     ComboBoxAttachment lowCutSlopeAttachment,
         highCutSlopeAttachment;
+
     std::vector<juce::Component*> getComps();
     LookAndFeel lnf;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQAudioProcessorEditor)
