@@ -12,7 +12,9 @@
 juce::Colour MainColor = juce::Colour(255, 138, 101);
 juce::Colour BGColor = juce::Colour(33, 33, 33);
 juce::Colour GridColor = juce::Colour(66, 66, 66);
+juce::Colour labelColor = MainColor;
 float overlay1Alpha = .04;
+float disabledAlpha = .025;
 float textAlpha = .5;
 float gridAlpha = .8;
 float gridGap = 35;
@@ -27,11 +29,12 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     using namespace juce;
 
     auto bounds = Rectangle<float>(x, y, width, height);
+    slider.isEnabled() ? labelColor = MainColor : labelColor = MainColor.withAlpha(textAlpha);
 
-    g.setColour(Colours::white.withAlpha(overlay1Alpha));
+    g.setColour(slider.isEnabled() ? Colours::white.withAlpha(overlay1Alpha) : Colours::white.withAlpha(disabledAlpha));
     g.fillEllipse(bounds);
 
-    g.setColour(Colours::white.withAlpha(overlay1Alpha));
+    g.setColour(slider.isEnabled() ? Colours::white.withAlpha(overlay1Alpha) : Colours::white.withAlpha(disabledAlpha));
     g.drawEllipse(bounds, 1.0f);
 
     if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
@@ -63,7 +66,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
         r.setSize(strWidth + 4, rswl->getTextHeight().getHeight()+ 2);
         r.setCentre(bounds.getCentre());
 
-        g.setColour(juce::Colours::white);
+        g.setColour(slider.isEnabled() ? Colours::white : Colours::white.withAlpha(textAlpha));
         g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
     }
 
@@ -81,7 +84,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 
     auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
     p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
-    g.setColour(MainColor);
+    g.setColour(slider.isEnabled() ? MainColor : MainColor.withAlpha(textAlpha));
     g.fillPath(p);
 }
 
@@ -93,7 +96,7 @@ void LookAndFeel::drawToggleButton(juce::Graphics& g,
     using namespace juce;
     Path powerButton;
     auto bounds = toggleButton.getLocalBounds();
-    auto size = jmin(bounds.getWidth()-10, bounds.getHeight()) - 10;
+    auto size = jmin(bounds.getWidth()-10, bounds.getHeight()) - 10; 
     auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
     size -= 6;
     bounds.removeFromRight(bounds.getWidth() * .33);
@@ -131,7 +134,7 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
                                                              startAng, endAng, *this);
     auto center = sliderBounds.toFloat().getCentre();
     auto radius = sliderBounds.getWidth() * .5f;
-    g.setColour(MainColor);
+    g.setColour(labelColor);
     g.setFont(getLabelTextHeight());
 
     auto numChoices = labels.size();
@@ -570,7 +573,6 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
     lowCutSlope.setSelectedId(1);
     highCutSlope.addItemList(arr, 1);
     highCutSlope.setSelectedId(1);
-    
 
     peak1FreqSlider.labels.add({ 0.f, "20Hz" });
     peak1FreqSlider.labels.add({ 1.f, "20kHz" });
@@ -604,6 +606,51 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
     peak2BypassButton.setLookAndFeel(&lnf);
     lowCutBypassButton.setLookAndFeel(&lnf);
     highCutBypassButton.setLookAndFeel(&lnf);
+    lowCutBypassButton.triggerClick();
+    highCutBypassButton.triggerClick();
+
+
+    auto safePtr = juce::Component::SafePointer<EQAudioProcessorEditor>(this);
+    peak1BypassButton.onClick = [safePtr]()
+    {
+        if (auto* comp = safePtr.getComponent())
+        {
+            auto bypassed = comp->peak1BypassButton.getToggleState();
+            comp->peak1FreqSlider.setEnabled(!bypassed);
+            comp->peak1GainSlider.setEnabled(!bypassed);
+            comp->peak1QSlider.setEnabled(!bypassed);
+        }
+    };
+    peak2BypassButton.onClick = [safePtr]()
+    {
+        if (auto* comp = safePtr.getComponent())
+        {
+            auto bypassed = comp->peak2BypassButton.getToggleState();
+            comp->peak2FreqSlider.setEnabled(!bypassed);
+            comp->peak2GainSlider.setEnabled(!bypassed);
+            comp->peak2QSlider.setEnabled(!bypassed);
+        }
+    };
+    lowCutBypassButton.onClick = [safePtr]()
+    {
+        if (auto* comp = safePtr.getComponent())
+        {
+            auto bypassed = comp->lowCutBypassButton.getToggleState();
+            comp->lowCutFreqSlider.setEnabled(!bypassed);
+            comp->lowCutSlope.setEnabled(!bypassed);
+            comp->lowCutQSlider.setEnabled(!bypassed);
+        }
+    };
+    highCutBypassButton.onClick = [safePtr]()
+    {
+        if (auto* comp = safePtr.getComponent())
+        {
+            auto bypassed = comp->highCutBypassButton.getToggleState();
+            comp->highCutFreqSlider.setEnabled(!bypassed);
+            comp->highCutSlope.setEnabled(!bypassed);
+            comp->highCutQSlider.setEnabled(!bypassed);
+        }
+    };
 
     setSize (800, 600);
 }
