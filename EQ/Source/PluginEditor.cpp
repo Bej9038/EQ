@@ -52,7 +52,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
         p.addRectangle(r);
         auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
         p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
-        g.setColour(slider.isEnabled() ? MainColor : MainColor.withAlpha(textAlpha));
+        g.setColour(labelColorMain);
         g.fillPath(p);
 
         g.setFont(rswl->getTextHeight());
@@ -103,10 +103,13 @@ void LookAndFeel::drawComboBox(juce::Graphics& g,
 {
     using namespace juce;
     auto bounds = comboBox.getLocalBounds();
+    bounds.reduce(15,15);
+    g.setColour(Colours::red);
+    g.drawRect(bounds);
     Rectangle<float> r;
+
     r.setSize(40, 20);
-    g.setColour(MainColor);
-    g.drawRect(r);
+    
 
 
 }
@@ -223,7 +226,7 @@ ResponseCurveComponent::ResponseCurveComponent(EQAudioProcessor& p) :
     }
 
     updateChain();
-    startTimerHz(1000);
+    startTimerHz(60);
 }
 void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float newValue)
 {
@@ -570,11 +573,11 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
     highCutBypassButtonAttachment(audioProcessor.apvts, "HighCut Bypass", highCutBypassButton)
 
 {
-    juce::StringArray arr = {"Slope_12", "Slope_24", "Slope_36", "Slope_48"};
+    juce::StringArray arr = {"12 dB/oct", "24 dB/oct", "36 dB/oct", "48 dB/oct"};
     lowCutSlope.addItemList(arr, 1);
-    lowCutSlope.setSelectedId(1);
+    lowCutSlope.setSelectedItemIndex(0);
     highCutSlope.addItemList(arr, 1);
-    highCutSlope.setSelectedId(1);
+    highCutSlope.setSelectedItemIndex(0);
 
     peak1FreqSlider.labels.add({ 0.f, "20Hz" });
     peak1FreqSlider.labels.add({ 1.f, "FREQ" });
