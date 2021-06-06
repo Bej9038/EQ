@@ -12,10 +12,9 @@
 juce::Colour MainColor = juce::Colour(255, 138, 101);
 juce::Colour BGColor = juce::Colour(33, 33, 33);
 juce::Colour GridColor = juce::Colour(66, 66, 66);
-juce::Colour labelColorMain = MainColor;
+juce::Colour labelColor = MainColor;
 float overlayEnabledAlpha = .04;
 float overlayDisabledAlpha = .025;
-juce::Colour labelColorSide = juce::Colours::white.withAlpha(overlayEnabledAlpha);
 float textAlpha = .5;
 float gridAlpha = .8;
 float gridGap = 35;
@@ -30,8 +29,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     using namespace juce;
 
     auto bounds = Rectangle<float>(x, y, width, height);
-    slider.isEnabled() ? labelColorMain = MainColor : labelColorMain = MainColor.withAlpha(textAlpha);
-    slider.isEnabled() ? labelColorSide = Colours::white.withAlpha(.25f) : labelColorSide = Colours::white.withAlpha(0.f);
+    slider.isEnabled() ? labelColor = MainColor : labelColor = MainColor.withAlpha(textAlpha);
 
     g.setColour(slider.isEnabled() ? Colours::white.withAlpha(overlayEnabledAlpha) : Colours::white.withAlpha(overlayDisabledAlpha));
     g.fillEllipse(bounds);
@@ -139,7 +137,7 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
     {
         if (i == 1)
         {
-            g.setColour(labelColorMain);
+            g.setColour(labelColor);
             g.setFont(getLabelTextHeight());
             auto pos = labels[i].pos;
             auto ang = jmap(pos, 0.f, 2.f, startAng, endAngJmap);
@@ -153,8 +151,8 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
         }
         else
         {
-            g.setColour(labelColorSide);
-            g.setFont(getLabelTextHeight());
+            g.setColour(Colours::white.withAlpha(.4f));
+            g.setFont(juce::Font("Roboto", 8, 0));
 
             auto pos = labels[i].pos;
             auto ang = jmap(pos, 0.f, 2.f, startAng, endAngJmap);
