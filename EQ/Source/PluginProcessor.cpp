@@ -268,8 +268,8 @@ void EQAudioProcessor::updateHighCutFilters(const ChainSettings& chainSettings)
 {
     auto highCutCoefficients = makeHighCutFilter(chainSettings, getSampleRate());
 
-    leftChain.setBypassed<ChainPositions::HighCut>(chainSettings.lowCutBypass);
-    rightChain.setBypassed<ChainPositions::HighCut>(chainSettings.lowCutBypass);
+    leftChain.setBypassed<ChainPositions::HighCut>(chainSettings.highCutBypass);
+    rightChain.setBypassed<ChainPositions::HighCut>(chainSettings.highCutBypass);
 
     auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
     updateCutFilter(leftHighCut, highCutCoefficients, chainSettings.highCutSlope);
@@ -297,7 +297,7 @@ EQAudioProcessor::createParameterLayout()
     {
         juce::String str;
         str << (12 + i * 12);
-        str << "dB/oct";
+        str << " dB/oct";
         strArr.add(str);
     }
 

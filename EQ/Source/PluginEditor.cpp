@@ -221,14 +221,14 @@ ResponseCurveComponent::ResponseCurveComponent(EQAudioProcessor& p) :
     }
 
     updateChain();
-    startTimerHz(1000);
+    startTimer(16);
 }
 void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float newValue)
 {
     parametersChanged.set(true);
 }
 
-void ResponseCurveComponent::timerCallback()
+void ResponseCurveComponent::hiResTimerCallback()
 {
     auto fftBounds = getRenderArea().toFloat();
     auto sampleRate = audioProcessor.getSampleRate();
@@ -547,7 +547,7 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
     lowCutFreqSlider(*audioProcessor.apvts.getParameter("LowCut Freq"), "Hz"),
     lowCutQSlider(*audioProcessor.apvts.getParameter("LowCut Q"), ""),
     highCutFreqSlider(*audioProcessor.apvts.getParameter("HighCut Freq"), "Hz"),
-    highCutQSlider(*audioProcessor.apvts.getParameter("LowCut Q"), ""),
+    highCutQSlider(*audioProcessor.apvts.getParameter("HighCut Q"), ""),
 
     responseCurveComponent(audioProcessor),
     peak1FreqSliderAttachment(audioProcessor.apvts, "Peak1 Freq", peak1FreqSlider),
@@ -559,12 +559,12 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
     peak2QSliderAttachment(audioProcessor.apvts, "Peak2 Q", peak2QSlider),
     peak2BypassButtonAttachment(audioProcessor.apvts, "Peak2 Bypass", peak2BypassButton),
     lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
-    highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
     lowCutSlopeAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlope),
-    highCutSlopeAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope),
     lowCutQSliderAttachment(audioProcessor.apvts, "LowCut Q", lowCutQSlider),
-    highCutQSliderAttachment(audioProcessor.apvts, "HighCut Q", highCutQSlider),
     lowCutBypassButtonAttachment(audioProcessor.apvts, "LowCut Bypass", lowCutBypassButton),
+    highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
+    highCutSlopeAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope),
+    highCutQSliderAttachment(audioProcessor.apvts, "HighCut Q", highCutQSlider),
     highCutBypassButtonAttachment(audioProcessor.apvts, "HighCut Bypass", highCutBypassButton)
 
 {
@@ -616,8 +616,6 @@ EQAudioProcessorEditor::EQAudioProcessorEditor(EQAudioProcessor& p)
     peak2BypassButton.setLookAndFeel(&lnf);
     lowCutBypassButton.setLookAndFeel(&lnf);
     highCutBypassButton.setLookAndFeel(&lnf);
-    lowCutBypassButton.triggerClick();
-    highCutBypassButton.triggerClick();
 
     lowCutSlope.setLookAndFeel(&lnf);
     highCutSlope.setLookAndFeel(&lnf);
@@ -729,8 +727,8 @@ std::vector<juce::Component*> EQAudioProcessorEditor::getComps()
         &lowCutBypassButton,
 
         &highCutFreqSlider,
-        &highCutBypassButton,
         &highCutQSlider,
-        &highCutSlope
+        &highCutSlope,
+        &highCutBypassButton
     };
 }

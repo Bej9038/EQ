@@ -240,12 +240,12 @@ private:
 
 struct ResponseCurveComponent : juce::Component,
     juce::AudioProcessorParameter::Listener,
-    juce::Timer
+    juce::HighResolutionTimer
 {
     ResponseCurveComponent(EQAudioProcessor&);
     void parameterValueChanged(int parameterIndex, float newValue) override;
     void parameterGestureChanged(int parameterIndex, bool genstureIsStarting) override {};
-    void timerCallback() override;
+    void hiResTimerCallback() override;
     void paint(juce::Graphics& g) override;
     void resized() override;
 
